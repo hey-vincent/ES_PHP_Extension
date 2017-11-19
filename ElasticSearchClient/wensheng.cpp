@@ -27,10 +27,10 @@ using namespace php;
 
 #define EX_NAME   "elasticsearch"
 #define CLASS_NAME  "ElasticSearchClient"
-#define ES  CLASS_NAME
 
 #define REG_FN(f) pEx->registerFunction(PHPX_FN(f));
 
+#define ES_Version  "1.0.0"
 
 static Http http;
 
@@ -46,9 +46,7 @@ ArgInfo *esInfo_Arg = new ArgInfo(1, false);
 
 // 1. 普通函数声明方式
 void esInfo(Args &args, Variant &retval){
-    cout << "Hey. Welcome to " << ES << ".Enjoy!" << endl;
-//    TODO
-//    retval = ZVAL_NULL();
+    cout << "Hey. Welcome to " << CLASS_NAME << ".Enjoy!" << endl;
 }
 
 
@@ -97,7 +95,7 @@ void ElasticSearchClient_Constructor(Object &ob, Args &args, Variant &retval){
 }
 
 // 2. PHPX_METHOD宏简化声明(宏展开后，函数原型是一样的)
-PHPX_METHOD(ElasticSearchClient, add) {
+PHPX_METHOD(ES, Add) {
     std::string sUrl, sResp,sDoc;
     sUrl = "http://" + _this.get("host").toString() + ":" + std::to_string(_this.get("port").toInt());
     sUrl += args[0].toString();
@@ -128,7 +126,7 @@ PHPX_METHOD(ElasticSearchClient, add) {
  * @param args
  * @param returnVal
  */
-void ElasticSearchClient_Query(Object &_obj, Args &args, Variant &returnVal){
+void ES_Query(Object &_obj, Args &args, Variant &returnVal){
     if (args.count() < 1){
         cout << "ElasticSearchClient::query至少需要1个参数" << endl;
     }
@@ -145,14 +143,13 @@ void ElasticSearchClient_Query(Object &_obj, Args &args, Variant &returnVal){
     return;
 }
 
-
 /**
  * 成员方法 Delete
  * @param obj
  * @param args
  * @param ret
  */
-void ElasticSearchClient_Delete(Object &obj, Args &args, Variant &ret){
+void ES_Delete(Object &obj, Args &args, Variant &ret){
     string sUrl = "http://" + obj.get("host").toString() + ":" + std::to_string(obj.get("port").toInt());
     sUrl += args[0].toString();
     string sResp;
@@ -168,29 +165,30 @@ void ElasticSearchClient_Delete(Object &obj, Args &args, Variant &ret){
  * @param args
  * @param ret
  */
-void ElasticSearchClient_Update(Object &obj, Args &args, Variant &ret){
-
+void ES_Update(Object &obj, Args &args, Variant &ret){
+    Args parameters;
+    parameters.append(args[0]);
+    ES_Query(obj, parameters,ret);
+    ES_Delete(obj,parameters, ret);
+    ES_Add(obj, args, ret);
 }
-
-
 
 // 扩展入口
 PHPX_EXTENSION(){
     // 实例化扩展
 	Extension *pEx = new Extension("demo", "1.0.0");
 
+    pEx->registerConstant("ES", "ElasticSearch");
+
     // 注册普通函数
-    // 1.普通方式
+    // 1.普通方式 C++函数与PHP函数不用同名
     pEx->registerFunction("esInfo", esInfo, esInfo_Arg);
 
-    // 2.宏方式
+    // 2.宏方式: php里的函数与C++里的函数都是esWiki
     pEx->registerFunction(PHPX_FN(esWiki));
 
-
-    // 更懒的方式...
+    // 更懒的方式...自定义
     REG_FN(esDomain)
-
-
 
 
     // onStart 回调
@@ -201,14 +199,15 @@ PHPX_EXTENSION(){
         // 注册类方法
         pEsClass->addMethod("__construct", ElasticSearchClient_Constructor, PUBLIC, pConstructorArg);
 
-        // 宏简化(写起来简单，但有局限,不方便IDE跳转)
-        pEsClass->addMethod(PHPX_ME(ElasticSearchClient, add), PUBLIC);
+        // 宏简化(写起来简单，但有局限,不方便IDE跳转) ： add -> Add
+        pEsClass->addMethod(PHPX_ME(ES, Add), PUBLIC);
 
-        pEsClass->addMethod("query", ElasticSearchClient_Query, PUBLIC);
+        // 更直观，约束少
+        pEsClass->addMethod("Query", ES_Query, PUBLIC);
 
-        pEsClass->addMethod("Delete", ElasticSearchClient_Delete, PUBLIC);
+        pEsClass->addMethod("Delete", ES_Delete, PUBLIC);
 
-        pEsClass->addMethod("Update", ElasticSearchClient_Update, PUBLIC);
+        pEsClass->addMethod("Update", ES_Update, PUBLIC);
 
 
         // 注册类成员
@@ -217,12 +216,15 @@ PHPX_EXTENSION(){
         pEsClass->addProperty("port", esPort, PUBLIC);
         // 常量
         pEsClass->addConstant("ES_FULL_NAME", cEsFullName);
+        // 静态成员
+        pEsClass->addProperty("version","0.0.0", STATIC);
+        if(!pEsClass->setStaticProperty("version", ES_Version)){
+            cout << "静态成员设置失败" << endl;
+        }
 
         // 注册类
         pEx->registerClass(pEsClass);
     };
-
-
 
     // 请求结束回调
     pEx->onAfterRequest = [&](){
