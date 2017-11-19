@@ -1,2 +1,3 @@
-# ES_PHP_Extension
-ElasticSearch PHP extension based on PHP-X
+PHP ElasticSearch Client Extension based on PHP-X
+> php-x: https://github.com/swoole/PHP-X
+
