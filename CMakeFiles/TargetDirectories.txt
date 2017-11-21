@@ -1,7 +1,0 @@
-/Users/wensheng/helloworld/ES_PHPX/CMakeFiles/install/strip.dir
-/Users/wensheng/helloworld/ES_PHPX/CMakeFiles/install.dir
-/Users/wensheng/helloworld/ES_PHPX/CMakeFiles/list_install_components.dir
-/Users/wensheng/helloworld/ES_PHPX/CMakeFiles/rebuild_cache.dir
-/Users/wensheng/helloworld/ES_PHPX/CMakeFiles/edit_cache.dir
-/Users/wensheng/helloworld/ES_PHPX/CMakeFiles/install/local.dir
-/Users/wensheng/helloworld/ES_PHPX/CMakeFiles/phpx.dir

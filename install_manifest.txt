@@ -1,3 +1,0 @@
-/usr/local/lib/libphpx.dylib
-/usr/local/include/phpx.h
-/usr/local/include/phpx_embed.h
