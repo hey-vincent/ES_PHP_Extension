@@ -7,7 +7,7 @@ PHP_INI = ``
 
 # c++ -DHAVE_CONFIG_H -g -o ElasticSearchClient.so -O0 -fPIC -shared -undefined dynamic_lookup wensheng.cpp Http.cpp -std=c++11 -lcurl -L/usr/local/lib/ -lphpx ${PHP_INCLUDE} -I${PHP_INCLUDE_DIR}
 ElasticSearchClient.so: wensheng.cpp Http.h Http.cpp
-	g++  wensheng.cpp Http.cpp -lcurl -lphpx ${PHP_INCLUDE} -I${PHP_INCLUDE_DIR} -std=c++11 -shared -undefined dynamic_lookup -o ElasticSearchClient.so
+	g++  wensheng.cpp Http.cpp -lcurl -lphpx ${PHP_INCLUDE} -I${PHP_INCLUDE_DIR} -std=c++11 -shared -undefined dynamic_lookup -I ./PHP-X-mster/ -o ElasticSearchClient.so
 install: ElasticSearchClient.so
 	mv ElasticSearchClient.so ${PHP_EXTENSION_DIR}/
 
