@@ -1,11 +1,27 @@
 <?php
-esInfo(); 
-echo esWiki();
-echo esDomain();
-echo ElasticSearchClient::ES_FULL_NAME;
+// esInfo(); 
+// echo esWiki();
+// echo esDomain();
+// echo ElasticSearch::ES_FULL_NAME;
+
+$str = array('name'=> 'wensheng');
 
 
-$es = new ElasticSearchClient("localhost",9200);
+$es = new ElasticSearch("localhost",9200);
+
+$arr = array(
+    'type'=> 'guy',
+    'index' => 'wensheng',
+    'id' => 2,
+    'body'=> $str
+);
+echo PHP_EOL . "插入：";
+
+// $add = $es->Add("/guy/wensheng/1" , $str);
+
+$add = $es->Add($arr);
+var_export(json_decode($add, true));
+return;
 
 
 // 静态变量测试
