@@ -4,23 +4,33 @@
 // echo esDomain();
 // echo ElasticSearch::ES_FULL_NAME;
 
-$str = array('name'=> 'wensheng');
+// string 参数
+$str = "/guy/wensheng/1";
 
+// array 参数
+$arr = array(
+    'index' => 'test_index',
+    'type'=> 'test_type',
+    'id' => 1,
+    'body'=> array(
+        'field1'=> 'value1',
+        'field2'=> 'value1',
+    )
+);
 
 $es = new ElasticSearch("localhost",9200);
 
-$arr = array(
-    'type'=> 'guy',
-    'index' => 'wensheng',
-    'id' => 2,
-    'body'=> $str
-);
+// Add 测试
 echo PHP_EOL . "插入：";
-
-// $add = $es->Add("/guy/wensheng/1" , $str);
-
 $add = $es->Add($arr);
 var_export(json_decode($add, true));
+
+
+// Query 测试
+echo PHP_EOL . "查询：";
+$query = $es->query($arr);
+
+var_export(json_decode($query, true));
 return;
 
 
@@ -33,15 +43,6 @@ return;
 // }
 
 
-
-
-$str = array('name'=>'wensheng','age'=>'23');
-
-// Add 测试
-$add = $es->Add("/guy/wensheng/1" , $str);
-echo PHP_EOL . "插入：";
-var_export(json_decode($add, true));
-
 // Update 测试
 $str = array('name'=>'Vincent','age'=>'I am 27 now');
 $add = $es->Update("/guy/wensheng/1" , $str);
@@ -52,10 +53,7 @@ echo PHP_EOL . "更新后：";
 var_export(json_decode($query, true));
 
 
-// Query 测试
-echo PHP_EOL . "查询：";
-$query = $es->query("/guy/wensheng/1");
-var_export(json_decode($query, true));
+
 
 
 // Delete 测试

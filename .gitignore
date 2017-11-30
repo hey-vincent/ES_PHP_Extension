@@ -8,3 +8,6 @@ CMakeFiles/clion-log.txt
 PHP-X-master/.gitignore
 PHP-X-master/.travis.yml
 cmake-build-debug/
+.cproject
+.project
+.settings

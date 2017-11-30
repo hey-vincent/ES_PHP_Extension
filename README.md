@@ -4,7 +4,7 @@
 
 - libcurl
 - php-x
-- 支持C++11的 g++/c++
+- 支持C++11的 g++/clang编译器
 
 ### libcurl
 
@@ -39,10 +39,39 @@
 
 ## 方法：
 - __construct($host, $port)
-- Add($index, $doc)
-- Query($index)
-- Update($index, $new_doc)
-- Delete($index)
+
+Add/Query/Delete/Update 的参数支持两种风格:
+
+```
+// 1. 字符串形式
+// 文档的uri 和 文档内容分开传
+// 如:
+ Add("my_index/my_type/my_id", "{my_doc}");
+
+ //2. 奇怪的数组形式,键的名称固定
+Add(
+    array(
+        'index' => 'my_index',
+        'type' => 'my_type',
+        'id' => 'my_id',
+        'body' => array(
+            'field' => 'value'
+        )
+    )
+);
+```
+
+- Add( string $index, (string | array)$doc)
+- Add( array $data)
+
+- Query(string $index)
+- Query(array $data)
+
+- Update(string $index, (string | array)$new_doc)
+- Update($data);
+
+- Delete(string $index)
+- Delete(array $data);
 
 ## 全局方法
 - esDomain 

@@ -9,6 +9,13 @@ struct MAN{
 	char y;
 };
 int main(){
+
+	string s = nullptr;
+	cout << s.empty() << endl;
+
+	return 0;
+
+
 	MAN m;
 	cout << m.x << endl;
 	return 1;
