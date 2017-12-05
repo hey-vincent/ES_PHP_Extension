@@ -36,17 +36,17 @@ bool buildEsUri(php::Array arr, string &uri, vector<string> fieldsEssential = {"
     if(sIndex.empty()){
         return false;
     }
-    uri += uri[-1] == '/' ? sIndex : "/"+sIndex;
+    uri += uri.back() == '/' ? sIndex : "/"+sIndex;
 
 	string sType = arr.get("type").toString();
     if(sType.empty()){
         return false;
     }
-    uri += uri[-1] == '/' ? sType : "/"+sType;
+    uri += uri.back() == '/' ? sType : "/"+sType;
    
 	string sId = arr.get("id").toString();
     if(!sType.empty()){
-        uri += uri[-1] == '/' ? sId : "/"+sId;
+        uri += uri.back() == '/' ? sId : "/"+sId;
     }
 
     return true;

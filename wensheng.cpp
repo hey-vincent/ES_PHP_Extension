@@ -6,26 +6,6 @@
 using namespace std;
 using namespace php;
 
-/**
- *  * 扩展名：elasticsearch
-    * 类：ElasticsearchClient
-    * 成员方法：
-        * construct(host,port)
-        * add(doc)
-        * delete(query)
-        * update(query,modify)
-        * query(query)
-    * 成员变量
-        * host
-        * port
-    * 静态变量
-        * version
-    * 全局方法
-        * esWiki
-        * esDomain
-        * esInfo
- */
-
 #define EX_NAME   "elasticsearch"
 #define CLASS_NAME  "ElasticSearchClient"
 
@@ -66,6 +46,7 @@ PHPX_FUNCTION(esDomain){
 // -------------------------------------------------------------------
 Variant esHost("");
 Variant esPort(0);
+Variant vMessage("");
 
 const Variant cEsFullName("ElasticSearchClient");
 
@@ -79,7 +60,9 @@ ArgInfo *pConstructorArg = new ArgInfo(2, false);
 void ElasticSearchClient_Constructor(Object &ob, Args &args, Variant &retval){
 	if (args.count() != 2){
         retval = NULL;
-        errReport("ElasticSearchClient的构造函数需要2个参数。");
+        vMessage = "ElasticSearchClientX的构造函数需要2个参数。";
+        ob.set("message", vMessage);
+        errReport(vMessage.toCString());
         return;
     }
 
@@ -94,10 +77,12 @@ void ElasticSearchClient_Constructor(Object &ob, Args &args, Variant &retval){
 }
 
 // 2. PHPX_METHOD宏简化声明(宏展开后，函数原型是一样的)
-PHPX_METHOD(ES, Add) {
+PHPX_METHOD(ES, add) {
     std::string sUrl, sResp,sDoc;
    if(!getUrl(_this.get("host").toString(), _this.get("port").toString(), sUrl)){
-       return errReport("ElasticSearchClient::Add URL解析错误。");
+       vMessage = "ElasticSearchClient::Add URL解析错误。";
+       _this.set("message", vMessage);
+       errReport(vMessage.toCString());
        retval = false;
        return;
    }
@@ -111,19 +96,29 @@ PHPX_METHOD(ES, Add) {
 			Array ary = args[1];
 			sDoc.assign(args[1].jsonEncode().toCString(),args[1].jsonEncode().toString().size() );
 		} else {
-			retval = false;
-			return;
+            vMessage = "ElasticSearchClient::add 参数类型错误";
+            _this.set("message", vMessage);
+            errReport(vMessage.toCString());
+            retval = false;
+            return;
 		}
    } else if (args[0].isArray()){ // 数组参数 
 	   if(!buildEsUri(args[0], sUrl)){
-           return errReport("ElasticSearchClient::Add 传入的第一个参数(数组),解析错误。");
+            vMessage = "ElasticSearchClient::add 传入的第一个参数(数组),解析错误。";
+            _this.set("message", vMessage);
+            errReport(vMessage.toCString());
+            retval = false;
+            return;
        }
-       
+
        sDoc =  ((Array)args[0]).get("body").jsonEncode().toString();
 
    } else{
-	   retval = false;
-	   return;
+        vMessage = "ElasticSearchClient::add 参数类型错误";
+        _this.set("message", vMessage);
+        errReport(vMessage.toCString());
+        retval = false;
+        return;
    }
 
     // 设置请求头
@@ -147,13 +142,20 @@ PHPX_METHOD(ES, Add) {
 void ES_Query(Object &_obj, Args &args, Variant &returnVal){
     returnVal = NULL;
     if (args.count() < 1){
-        return errReport("ElasticSearchClient::Query 至少需要一个参数.");
+        vMessage = "ElasticSearchClient::Query 至少需要一个参数.";
+        _obj.set("message", vMessage);
+        errReport(vMessage.toCString());
+        returnVal = false;
+        return;
     }
 
     string sURL,sRes;
     if(!getUrl(_obj.get("host").toString(), _obj.get("port").toString(), sURL)){
+        vMessage = "ElasticSearchClient::search URL解析错误。";
+        _obj.set("message", vMessage);
+        errReport(vMessage.toCString());
         returnVal = false;
-        return errReport("ElasticSearchClient::Query URL解析错误。");
+        return;
     }
 
     // 查询的uri
@@ -163,13 +165,21 @@ void ES_Query(Object &_obj, Args &args, Variant &returnVal){
         sURL += args[0].toString();
     }else if(args[0].isArray()){
         if(!buildEsUri(args[0], sURL)){
-            return errReport("Delete方法传入的数组参数有误。");
+            vMessage = "ElasticSearchClient::search 参数错误。";
+            _obj.set("message", vMessage);
+            errReport(vMessage.toCString());
+            returnVal = false;
+            return;
+            
         }
     }else{
+        vMessage = "ElasticSearchClient::search 参数错误。";
+        _obj.set("message", vMessage);
+        errReport(vMessage.toCString());
         returnVal = false;
-        return errReport("Query方法参支持的参数类型为STRING或ARRAY");
+        return;
+        
     }
-    //cout << sURL << endl;
 	
     http.get(sURL,"",sRes);
     returnVal = sRes;
@@ -186,19 +196,29 @@ void ES_Delete(Object &obj, Args &args, Variant &ret){
 
     string sUrl,sResp;
     if(!getUrl(obj.get("host").toString(), obj.get("port").toString(), sUrl)){
+        vMessage = "ElasticSearchClient::remove URL解析错误。";
+        obj.set("message", vMessage);
+        errReport(vMessage.toCString());
         ret = false;
-        return errReport("ElasticSearchClient::Delete URL解析错误。");
+        return;
     }
 
     if (args[0].isString()){
         sUrl += args[0].toString();
     } else if(args[0].isArray()){
         if(!buildEsUri(args[0], sUrl)){
-            return errReport("Delete方法传入的数组参数有误。");
+            vMessage = "ElasticSearchClient::remove 参数错误。";
+            obj.set("message", vMessage);
+            errReport(vMessage.toCString());
+            ret = false;
+            return;
         }
     } else{
+        vMessage = "ElasticSearchClient::remove 方法参支持的参数类型为STRING或ARRAY";
+        obj.set("message", vMessage);
+        errReport(vMessage.toCString());
         ret = false;
-        return errReport("Delete方法参支持的参数类型为STRING或ARRAY");
+        return;
     }
    
     http.Delete(sUrl, sResp);
@@ -217,19 +237,28 @@ void ES_Delete(Object &obj, Args &args, Variant &ret){
  */
 void ES_Update(Object &obj, Args &args, Variant &ret){
     Args parameters;
-    for(int i=0; i<args.count(); i++){
-        parameters.append(args[i]);
-    }
+    for(int i=0; i<args.count(); i++){ parameters.append(args[i]); }
     
     ES_Query(obj, parameters,ret);
+    if(ret == false ){ return;}
+
     ES_Delete(obj,parameters, ret);
-    ES_Add(obj, args, ret);
+    if(ret == false ){ return;}
+
+    ES_add(obj, args, ret);
+    return;
+}
+
+
+void getMessage(Object &_this, ArgInfo &args, Variant &ret){
+    ret = vMessage;
+    return;
 }
 
 // 扩展入口
 PHPX_EXTENSION(){
     // 实例化扩展
-	Extension *pEx = new Extension("ElasticSearchClient", "1.0.0");
+	Extension *pEx = new Extension("ElasticSearchX", "1.0.0");
 
     pEx->registerConstant("ES", "ElasticSearch");
 
@@ -251,7 +280,7 @@ PHPX_EXTENSION(){
     */
 
     // Class 类提供针对扩展类的定制
-    Class *pEsClass = new Class("Elasticsearch");
+    Class *pEsClass = new Class("ElasticSearchClientX");
 
     // onStart 回调
     // 模块初始化阶段
@@ -260,20 +289,21 @@ PHPX_EXTENSION(){
         pEsClass->addMethod("__construct", ElasticSearchClient_Constructor, PUBLIC, pConstructorArg);
 
         // 宏简化(写起来简单，但有局限,不方便IDE跳转) ： add -> Add
-        pEsClass->addMethod(PHPX_ME(ES, Add), PUBLIC);
+        pEsClass->addMethod(PHPX_ME(ES, add), PUBLIC);
 
         // 更直观，约束少
-        pEsClass->addMethod("Query", ES_Query, PUBLIC, nullptr);
+        pEsClass->addMethod("get", ES_Query, PUBLIC, nullptr);
 
-        pEsClass->addMethod("Delete", ES_Delete, PUBLIC);
+        pEsClass->addMethod("remove", ES_Delete, PUBLIC);
 
-        pEsClass->addMethod("Update", ES_Update, PUBLIC);
+        pEsClass->addMethod("update", ES_Update, PUBLIC);
 
 
         // 注册类成员
         // 普通成员
         pEsClass->addProperty("host", esHost, PUBLIC);
         pEsClass->addProperty("port", esPort, PUBLIC);
+        pEsClass->addProperty("message", vMessage, PUBLIC);
         // 常量
         pEsClass->addConstant("ES_FULL_NAME", cEsFullName);
         // 静态成员
@@ -302,7 +332,7 @@ PHPX_EXTENSION(){
     };
 
     pEx->info (
-        {"elasticsearchx: A ElasticSearch Client based on PHP-X","loaded"},
+        {"ElasticSearchX: A ElasticSearch Client based on PHP-X","loaded"},
         {
             {"author", "wensheng"},
             {"version", ES_Version },
