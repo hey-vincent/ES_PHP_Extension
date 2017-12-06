@@ -2,8 +2,12 @@
 
 #include <string>
 
+#include "phpx.h"
+
+
 using namespace std;
 using namespace php;
+
 
 // 拼接url
 bool getUrl(string host, string port , string &url,  bool ssl =  false){
@@ -25,7 +29,9 @@ enum ERROR_LEVEL
 void errReport(const char *pErr, ERROR_LEVEL level = ERROR_LEVEL::NOTICE)
 {
     // todo PHP风格的Notice/warning/Fatal
-    cout << "Notice:" << pErr << endl;
+    // cout << "Notice:" << pErr << endl;
+    php::throwException("Exception From ElasticSearch extension." , pErr);
+    
 }
 
 // 从数组中拼凑ES文档的uri

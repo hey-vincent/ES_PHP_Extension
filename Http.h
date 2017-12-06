@@ -13,6 +13,13 @@ using namespace std;
 class Http {
 
 public:
+    Http( long lTimeout = 1);
+    void setTimeout(long nTimeout);
+
+protected:
+    long l_op_timeout;
+
+public:
     bool get(std::string strUrl, std::string strParam, string &res);
     bool puts(std::string strUrl, map<string,string> mapHeader, std::string strParam, string &res);
     bool post(std::string strUrl, std::string strParam, string &sRep);

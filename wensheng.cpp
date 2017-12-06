@@ -13,7 +13,7 @@ using namespace php;
 
 #define ES_Version  "1.0.0"
 
-static Http http;
+static Http http(1);
 
 
 // -------------------------------------------------------------------
@@ -72,6 +72,7 @@ void ElasticSearchClient_Constructor(Object &ob, Args &args, Variant &retval){
     ob.set("host", esHost);
     ob.set("port", esPort);
 
+    http.setTimeout(ob.getStaticProperty("connect_timeout"));
     retval=ob;
     return;
 }
@@ -255,6 +256,54 @@ void getMessage(Object &_this, ArgInfo &args, Variant &ret){
     return;
 }
 
+
+void showDoc(Object &_hits, ArgInfo &args, Variant &ret){
+    string strDoc = "define("ES_EXT_BUILD_ID", "100");
+function showEsDocument();
+class ElasticSearchClient
+    const VERSION = "1.0.0";
+    public static $connect_timeout = 1;  // unit:s  default:1s
+    public static $request_timeout = 2;  // unit:s  default:2s
+    private $host = "";
+    private $port = "";
+    public $message = "";
+    public function __construct(string $host, int $port)
+    public function add($params) : mixed
+    public function remove($params) : mixed
+    public function update($params) : mixed
+    public function get($params) : mixed
+    public function search($params) : mixed
+    public function getMessage() : string
+    public static function setConnectTimeout($seconds) : bool
+    public static function setRequestTimeout($seconds) : bool";
+    ret = strDoc;
+    return;
+}
+
+
+void setConTimeout(Object &_this, ArgInfo &args, Variant &ret){
+     vMessage = "ElasticSearchClient::setConTimeout 参数错误。";
+      _this.set("message", vMessage);
+      errReport(vMessage.toCString());
+      ret = false;
+    _this.setStaticProperty("connect_timeout", args[0]);
+    ret = true;
+    return;
+}
+
+
+void setReqTimeout(Object &_this, ArgInfo &args, Variant &ret){
+      vMessage = "ElasticSearchClient::setReqTimeout 参数错误。";
+      _this.set("message", vMessage);
+      errReport(vMessage.toCString());
+      ret = false;
+     _this.setStaticProperty("request_timeout", args[0]);
+    ret = true;
+    return;
+}
+
+
+
 // 扩展入口
 PHPX_EXTENSION(){
     // 实例化扩展
@@ -298,6 +347,13 @@ PHPX_EXTENSION(){
 
         pEsClass->addMethod("update", ES_Update, PUBLIC);
 
+        pEsClass->addMethod("showEsDocument", showDoc, PUBLIC);
+
+        pEsClass->addMethod("getMessage", getMessage, PUBLIC);
+
+        pEsClass->addMethod("setConnectTimeout", setConTimeout, PUBLIC | STATIC);
+
+        pEsClass->addMethod("setRequestTimeout", setReqTimeout, PUBLIC | STATIC);
 
         // 注册类成员
         // 普通成员
@@ -306,8 +362,11 @@ PHPX_EXTENSION(){
         pEsClass->addProperty("message", vMessage, PUBLIC);
         // 常量
         pEsClass->addConstant("ES_FULL_NAME", cEsFullName);
+        pEsClass->addConstant("VERSION", "1.0.0");
         // 静态成员
         pEsClass->addProperty("version","0.0.0", STATIC);
+        pEsClass->addProperty("connect_timeout", 1, STATIC);
+        pEsClass->addProperty("request_timeout", 2, STATIC);
 
         // 注册类
         pEx->registerClass(pEsClass);

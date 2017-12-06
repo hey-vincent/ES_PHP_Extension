@@ -8,6 +8,16 @@
 
 #define LOCAL_FILE "./xtest.txt"
 
+Http::Http(long lTimeout)
+{
+    l_op_timeout = lTimeout;
+}
+
+
+void Http::setTimeout(long nTimeout){
+    l_op_timeout = nTimeout;
+}
+
 /**
  * 请求回调
  * @param ptr
@@ -43,6 +53,7 @@ bool Http::get(string strUrl, string strParams, string &resp)
         curl_easy_setopt(curl, CURLOPT_HTTPGET, "");
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, responseCallBack);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *) &resp);
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, l_op_timeout);
 
         res = curl_easy_perform(curl);
         if (res != CURLE_OK){
@@ -70,6 +81,7 @@ bool Http::Delete(string strUrl, string &resp)
         curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, responseCallBack);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *) &resp);
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, l_op_timeout);
 
         res = curl_easy_perform(curl);
         if (res != CURLE_OK){
@@ -122,6 +134,8 @@ bool Http::puts(string strUrl, map<string,string> mapHeader, string strParams, s
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *) &resp);
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, pHead);
 
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, l_op_timeout);
+
         res = curl_easy_perform(curl);
 
         if (res != CURLE_OK)
@@ -161,6 +175,8 @@ bool Http::post(string strUrl, string strParams, string &sRep)
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *) &sRep);
 
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, pHead);
+
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, l_op_timeout);
         
 
         /* Perform the request, res will get the return code */
@@ -210,6 +226,8 @@ bool Http::Put(string strUrl, map<string,string> mapHeader, string strParams, st
 
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, responseCallBack);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *) &sResp);
+
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, l_op_timeout);
 
         res = curl_easy_perform(curl);
         if (res != CURLE_OK){
