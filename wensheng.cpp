@@ -15,6 +15,9 @@ using namespace php;
 
 static Http http(1);
 
+// Es 类
+php::Class *pEsClass = NULL;
+
 
 // -------------------------------------------------------------------
 // 普通函数（全局函数）声明
@@ -71,8 +74,10 @@ void ElasticSearchClient_Constructor(Object &ob, Args &args, Variant &retval){
 
     ob.set("host", esHost);
     ob.set("port", esPort);
+    
 
-    http.setTimeout(ob.getStaticProperty("connect_timeout"));
+    // pEsClass 空判断
+    http.setTimeout(pEsClass->getStaticProperty("connect_timeout").toInt());
     retval=ob;
     return;
 }
@@ -251,58 +256,43 @@ void ES_Update(Object &obj, Args &args, Variant &ret){
 }
 
 
-void getMessage(Object &_this, ArgInfo &args, Variant &ret){
+void getMessage(Object &_this, Args &args, Variant &ret){
     ret = vMessage;
     return;
 }
 
 
-void showDoc(Object &_hits, ArgInfo &args, Variant &ret){
-    string strDoc = "define("ES_EXT_BUILD_ID", "100");
-function showEsDocument();
-class ElasticSearchClient
-    const VERSION = "1.0.0";
-    public static $connect_timeout = 1;  // unit:s  default:1s
-    public static $request_timeout = 2;  // unit:s  default:2s
-    private $host = "";
-    private $port = "";
-    public $message = "";
-    public function __construct(string $host, int $port)
-    public function add($params) : mixed
-    public function remove($params) : mixed
-    public function update($params) : mixed
-    public function get($params) : mixed
-    public function search($params) : mixed
-    public function getMessage() : string
-    public static function setConnectTimeout($seconds) : bool
-    public static function setRequestTimeout($seconds) : bool";
+void showDoc(Object &_this, Args &args, Variant &ret)
+{
+    string strDoc = "define(\"ES_EXT_BUILD_ID\", \"100\");";
     ret = strDoc;
     return;
 }
 
 
-void setConTimeout(Object &_this, ArgInfo &args, Variant &ret){
+void setConTimeout(Object &_this, Args &args, Variant &ret){
      vMessage = "ElasticSearchClient::setConTimeout 参数错误。";
       _this.set("message", vMessage);
       errReport(vMessage.toCString());
       ret = false;
-    _this.setStaticProperty("connect_timeout", args[0]);
+
+    // _this.setStaticProperty("connect_timeout", args[0]);
+    
     ret = true;
     return;
 }
 
 
-void setReqTimeout(Object &_this, ArgInfo &args, Variant &ret){
+void setReqTimeout(Object &_this, Args &args, Variant &ret){
       vMessage = "ElasticSearchClient::setReqTimeout 参数错误。";
       _this.set("message", vMessage);
       errReport(vMessage.toCString());
       ret = false;
-     _this.setStaticProperty("request_timeout", args[0]);
+      
+    pEsClass->setStaticProperty("request_timeout", args[0]);
     ret = true;
     return;
 }
-
-
 
 // 扩展入口
 PHPX_EXTENSION(){
@@ -329,11 +319,11 @@ PHPX_EXTENSION(){
     */
 
     // Class 类提供针对扩展类的定制
-    Class *pEsClass = new Class("ElasticSearchClientX");
+    pEsClass = new Class("ElasticSearchClientX");
 
     // onStart 回调
     // 模块初始化阶段
-    pEx->onStart = [pEsClass,pEx](){
+    pEx->onStart = [pEx](){
         // 注册类方法
         pEsClass->addMethod("__construct", ElasticSearchClient_Constructor, PUBLIC, pConstructorArg);
 

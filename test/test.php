@@ -19,7 +19,9 @@ $arr = array(
 );
 
 $es = new ElasticSearchClientX("localhost",9200);
+echo $es->showEsDocument();
 
+return;
 // Add 测试
 echo PHP_EOL . "插入：";
 $add = $es->Add($arr);
@@ -27,9 +29,9 @@ var_export(json_decode($add, true));
 
 
 // Query 测试
-echo PHP_EOL . "查询：";
-$query = $es->search($arr);
-var_export(json_decode($query, true));
+// echo PHP_EOL . "查询：";
+// $query = $es->search($arr);
+// var_export(json_decode($query, true));
 
 
 
@@ -43,27 +45,27 @@ var_export(json_decode($query, true));
 
 
 // Update 测试
-$str = array('name'=>'Vincent','age'=>'I am 27 now');
-$add = $es->update("/guy/wensheng/1" , $str);
+// $str = array('name'=>'Vincent','age'=>'I am 27 now');
+// $add = $es->update("/guy/wensheng/1" , $str);
 
-$query = $es->search("/guy/wensheng/1");
+// $query = $es->search("/guy/wensheng/1");
 
-echo PHP_EOL . "更新后：";
-var_export(json_decode($query, true));
-
-
+// echo PHP_EOL . "更新后：";
+// var_export(json_decode($query, true));
 
 
 
-// Delete 测试
-$del = $es->remove("/guy/wensheng/1");
-echo PHP_EOL . "删除：";
-var_export(json_decode($del, true));
+
+
+// // Delete 测试
+// $del = $es->remove("/guy/wensheng/1");
+// echo PHP_EOL . "删除：";
+// var_export(json_decode($del, true));
 
 
 
-// 删除后查询
-echo PHP_EOL . "查询：";
-$query = $es->search("/guy/wensheng/1");
-var_export(json_decode($query, true));
+// // 删除后查询
+// echo PHP_EOL . "查询：";
+// $query = $es->search("/guy/wensheng/1");
+// var_export(json_decode($query, true));
 
