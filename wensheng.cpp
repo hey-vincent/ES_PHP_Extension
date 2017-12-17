@@ -24,7 +24,9 @@ php::Class *pEsClass = NULL;
 // -------------------------------------------------------------------
 
 // 指定参数信息
+ArgInfo *pConstructorArg = new ArgInfo(2, false);
 ArgInfo *esInfo_Arg = new ArgInfo(0, false);
+
 
 // 1. 普通函数声明方式
 void esInfo(Args &args, Variant &retval){
@@ -59,7 +61,6 @@ const Variant cEsFullName("ElasticSearchClient");
 
 // 1.普通函数方式声明
 // 构造函数
-ArgInfo *pConstructorArg = new ArgInfo(2, false);
 void ElasticSearchClient_Constructor(Object &ob, Args &args, Variant &retval){
 	if (args.count() != 2){
         retval = NULL;
@@ -296,13 +297,14 @@ void setReqTimeout(Object &_this, Args &args, Variant &ret){
 
 // 扩展入口
 PHPX_EXTENSION(){
+
     // 实例化扩展
 	Extension *pEx = new Extension("ElasticSearchX", "1.0.0");
 
     pEx->registerConstant("ES", "ElasticSearch");
 
     // 注册普通函数
-    // 1.普通方式 C++函数与PHP函数不用同名
+    // 1.普通方式 C++函数与PHP函数不用同名 TODO
     pEx->registerFunction("esInfo", esInfo, esInfo_Arg);
 
     // 2.宏方式: php里的函数与C++代码里的函数都是esWiki
@@ -321,13 +323,15 @@ PHPX_EXTENSION(){
     // Class 类提供针对扩展类的定制
     pEsClass = new Class("ElasticSearchClientX");
 
+    // ArgInfo *pArg = new ArgInfo(2,false);
+
     // onStart 回调
     // 模块初始化阶段
     pEx->onStart = [pEx](){
         // 注册类方法
-        pEsClass->addMethod("__construct", ElasticSearchClient_Constructor, PUBLIC, pConstructorArg);
+        pEsClass->addMethod("__construct", ElasticSearchClient_Constructor, PUBLIC, nullptr);//pConstructorArg
 
-        // 宏简化(写起来简单，但有局限,不方便IDE跳转) ： add -> Add
+        // 宏简化(写起来简单，但有局限,也不方便IDE跳转) ： add -> Add
         pEsClass->addMethod(PHPX_ME(ES, add), PUBLIC);
 
         // 更直观，约束少
@@ -364,21 +368,36 @@ PHPX_EXTENSION(){
 
 
     // 请求结束回调
-    pEx->onAfterRequest = [&](){
-        // delete esInfo_Arg;
-        // delete pConstructorArg;
+    pEx->onAfterRequest = []() {
+
+        if(NULL != esInfo_Arg) {
+            delete esInfo_Arg;
+            // esInfo_Arg = NULL;
+        }
+
+        if(NULL != pConstructorArg){
+            delete pConstructorArg;
+            pConstructorArg = NULL;
+        } 
+
+        // if(NULL != pEsClass){
+        //     delete pEsClass;
+        //     pEsClass = NULL;
+        // } 
     };
 
     // Before Request
     // 模块激活 RINT
-    pEx->onBeforeRequest = [&](){
-        
-    };
+    pEx->onBeforeRequest = [](){ };
 
     // Extension Shutdown
-    pEx->onShutdown = [&](){
-        // if(NULL != pEsClass){delete pEsClass;}
-    };
+    pEx->onShutdown = [](){
+
+        if(NULL != pEsClass){
+            delete pEsClass;
+            pEsClass = NULL;
+        } 
+     };
 
     pEx->info (
         {"ElasticSearchX: A ElasticSearch Client based on PHP-X","loaded"},
